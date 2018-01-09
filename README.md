@@ -14,6 +14,6 @@
 07 3D 文字製作
 08 Texture 貼圖
 09 NormalMap 法線貼圖
-10 天空盒 SkyBox
-11 WebGL 跟 Canvas 切換
+10 天空盒 SkyBox
+11 WebGL 跟 Canvas 切換
 ```
