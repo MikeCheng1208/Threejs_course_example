@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>04 LoadModel</title>
+    <style>
+        *{ margin: 0; padding:0;box-sizing: border-box;}
+        canvas{ display: block; width: 100%; height: auto; }
+    </style>
+</head>
+<body>
+    <script src="./js/three.min.js"></script>
+    <script src="./js/lib/loaders/OBJLoader.js"></script>
+    <script src="./js/lib/loaders/MTLLoader.js"></script>
+    <script>
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000 );
+        camera.position.set(100,50,100);
+        camera.lookAt(scene.position);
+        // --------------------------------------------------------------------------------------------------------------
+        //地板
+        var planeGeometry = new THREE.BoxGeometry( 2000, 1, 2000 );
+        var planeMaterial = new THREE.MeshPhongMaterial({ color: 0x006AC6});
+        var planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
+        planeMesh.receiveShadow = true;
+        scene.add(planeMesh);
+        planeMesh.position.set(0, 0, 0);
+        // --------------------------------------------------------------------------------------------------------------
+        //環境光
+        var ambient = new THREE.AmbientLight( 0xffffff, 1);
+        scene.add(ambient);
+        // --------------------------------------------------------------------------------------------------------------
+        //載入模型跟材質
+        var objloader = new THREE.OBJLoader();  //模型的加載器
+        var mtlloader = new THREE.MTLLoader();  //材質的加載器
+        var objMtl = new Promise(function(resolve, reject) {
+            mtlloader.load("./textures/model/whiteTree.mtl", function(mtl) { 
+                objloader.setMaterials(mtl);   //模型加入材質
+                objloader.load("./textures/model/whiteTree.obj", function(obj) {
+                    resolve(obj);
+                })
+            })
+        })
+        objMtl.then(function(obj) {
+            obj.position.set(0,30,0);
+            obj.scale.set(15,15,15);
+            scene.add(obj);
+        })
+        // --------------------------------------------------------------------------------------------------------------
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor( 0xfaebd7); //設定世界顏色
+
+        document.body.appendChild(renderer.domElement);
+        // --------------------------------------------------------------------------------------------------------------
+        window.addEventListener('resize', resizeFn);
+        function render() {
+            renderer.render(scene, camera);
+        }
+        function animatesRender() {
+            requestAnimationFrame(animatesRender);
+            render();
+        }
+        function resizeFn(){
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        // --------------------------------------------------------------------------------------------------------------
+        animatesRender();
+    </script>
+</body>
+</html>

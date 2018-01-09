@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>07 Fonts 3D</title>
+    <style>
+        *{ margin: 0; padding:0;box-sizing: border-box;}
+        canvas{ display: block; width: 100%; height: auto; }
+    </style>
+</head>
+<body>
+    <script src="./js/three.min.js"></script>
+    <script src="./js/lib/controls/OrbitControls.js"></script>
+    <script>
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000 );
+        camera.position.set(200,200,200);
+        camera.lookAt(scene.position);
+        // --------------------------------------------------------------------------------------------------------------
+        //地板
+        var planeGeometry = new THREE.BoxGeometry( 2000, 1, 2000 );
+        var planeMaterial = new THREE.MeshPhongMaterial({ color: 0x84bccc});
+        var planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
+        planeMesh.receiveShadow = true;
+        scene.add(planeMesh);
+        planeMesh.position.set(0, 0, 0);
+        // --------------------------------------------------------------------------------------------------------------
+        //環境光
+        var ambient = new THREE.AmbientLight( 0xffffff, 1);
+        scene.add(ambient);
+        //點光
+        var pointLight = new THREE.PointLight(0xffffff, 1, 700, 6);
+        pointLight.position.set( -30, 150, 50 );
+        pointLight.castShadow = true;
+        scene.add(pointLight);
+        // --------------------------------------------------------------------------------------------------------------
+        //文字載入
+        var fontLoader = new THREE.FontLoader();
+        fontLoader.load("./fonts/gentilis_bold.typeface.json", text3D, loading);
+        function loading(load) {
+            console.log("loading:",(load.loaded/load.total * 100 | 0) + "%");
+        }        
+        function text3D(font) {
+            var textGeo = new THREE.TextGeometry( "Mike", {
+                font: font,
+                size: 70,
+                height: 20,
+            });
+            textGeo.computeBoundingBox();
+            textGeo.computeVertexNormals();
+            var centerOffset = -0.5 * ( textGeo.boundingBox.max.x - textGeo.boundingBox.min.x );
+            var materials = [
+                new THREE.MeshPhongMaterial( { color: 0xffffff } ), // 填色
+                new THREE.MeshPhongMaterial( { color: 0x747c74 } )  // 外皮
+            ];
+            var textMesh = new THREE.Mesh(textGeo, materials);
+            textMesh.position.set(centerOffset, 15, 0);
+            textMesh.rotation.y = Math.PI * 2;
+            textMesh.castShadow = true;
+            scene.add(textMesh);
+
+        }
+        // --------------------------------------------------------------------------------------------------------------
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        renderer.setClearColor( 0x0cbcd1); //設定世界顏色
+        renderer.shadowMap.enabled = true; //開啟陰影
+        // --------------------------------------------------------------------------------------------------------------
+        //控制器
+        var controls = new THREE.OrbitControls(camera);
+        controls.addEventListener('chenge',render);
+        // --------------------------------------------------------------------------------------------------------------
+        window.addEventListener('resize', resizeFn);
+        function render() {
+            renderer.render(scene, camera);
+        }
+        function animatesRender() {
+            requestAnimationFrame(animatesRender);
+            render();
+        }
+        function resizeFn(){
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        // --------------------------------------------------------------------------------------------------------------
+        animatesRender();
+    </script>
+</body>
+</html>

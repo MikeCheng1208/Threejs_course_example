@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>11 Renderer</title>
+    <style>
+        *{ margin: 0; padding:0;box-sizing: border-box;}
+        canvas{ display: block; width: 100%; height: auto; }
+    </style>
+</head>
+<body>
+    <script src="./js/three.min.js"></script>
+    <script src="./js/lib/Detector.js"></script>
+    <script src="./js/lib/controls/OrbitControls.js"></script>
+    <script src="./js/lib/renderers/CanvasRenderer.js"></script>
+    <script>
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+        camera.position.set(200,200,200);
+        camera.lookAt(scene.position);
+        var geometry = new THREE.BoxGeometry( 100, 100, 100 );
+        var material = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+        var cube = new THREE.Mesh( geometry, material );
+        scene.add(cube);
+        // --------------------------------------------------------------------------------------------------------------
+        var path = "./textures/cube/skybox/";
+        var urls  = [ 
+                path + "px.jpg",
+                path + "nx.jpg", 
+                path + "py.jpg", 
+                path + "ny.jpg", 
+                path + "pz.jpg", 
+                path + "nz.jpg"
+        ];
+        var reflectionCube = new THREE.CubeTextureLoader().load(urls);
+        reflectionCube.format = THREE.RGBFormat;
+        scene.background = reflectionCube;
+        // --------------------------------------------------------------------------------------------------------------
+        //控制器
+        var controls = new THREE.OrbitControls(camera);
+        controls.addEventListener('chenge',render);
+        window.addEventListener('resize', resizeFn);
+        // --------------------------------------------------------------------------------------------------------------
+        //使用 Detector.js 判斷是否支援
+        var renderer = Detector.webgl == true ? new THREE.WebGLRenderer() : new THREE.CanvasRenderer();
+        console.log('是否支援webGL:',Detector.webgl);
+        // --------------------------------------------------------------------------------------------------------------
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        function render() {
+            renderer.render(scene, camera);
+        }
+        function animatesRender() {
+            requestAnimationFrame(animatesRender);
+            render();
+        }
+        function resizeFn(){
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        // --------------------------------------------------------------------------------------------------------------
+        animatesRender();
+    </script>
+</body>
+</html>

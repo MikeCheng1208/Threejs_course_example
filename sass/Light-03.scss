@@ -1,0 +1,28 @@
+*{ 
+    margin: 0; 
+    padding:0;
+    box-sizing: border-box;
+}
+ol, ul {  
+    list-style: none;  
+}
+canvas{
+    display: block;
+    width: 100%;
+    height: auto;
+}
+.ui_Box{
+    position: fixed;
+    top: 2px;
+    right: 2px;
+    background-color: #000;
+    border: 2px solid #2fa1d6;
+    width: auto;
+    height: auto;
+    overflow: hidden;
+    padding: 20px;
+    label{
+        color: #eee;
+        font-size: 14px;
+    }
+}

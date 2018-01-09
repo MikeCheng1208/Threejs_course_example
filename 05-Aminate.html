@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>05 aminate</title>
+    <style>
+        *{ margin: 0; padding:0;box-sizing: border-box;}
+        canvas{ display: block; width: 100%; height: auto; }
+        button{
+            position: fixed;
+            bottom: 10%;
+            left: 50%;
+            display: block;
+            width: 100px;
+            height: 30px;
+            line-break: 30px;
+            margin-left: -50px;
+        }
+    </style>
+</head>
+<body>
+    <button id="gotoAndPlay">動畫play</button>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.3/TweenMax.min.js"></script>
+    <script src="./js/three.min.js"></script>
+    <script src="./js/lib/controls/OrbitControls.js"></script>
+    <script>
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000 );
+        camera.position.set(200,200,200);
+        camera.lookAt(scene.position);
+        // --------------------------------------------------------------------------------------------------------------
+        //地板
+        var planeGeometry = new THREE.BoxGeometry( 2000, 1, 2000 );
+        var planeMaterial = new THREE.MeshPhongMaterial({ color: 0x006AC6});
+        var planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
+        planeMesh.receiveShadow = true;
+        scene.add(planeMesh);
+        planeMesh.position.set(0, 0, 0);
+        // --------------------------------------------------------------------------------------------------------------
+        //方塊
+        var boxGeometry = new THREE.BoxGeometry(30, 30, 30 );
+        var boxMaterial = new THREE.MeshLambertMaterial({ color: 0xff0000});
+        var boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
+        boxMesh.position.set(40, 15, 0 );
+        boxMesh.castShadow = true;
+        scene.add(boxMesh);
+        
+        var tl = new TimelineLite();
+        var isAminate = false;
+        // https://greensock.com/timelinelite
+        // https://greensock.com/docs/TweenLite
+        document.getElementById("gotoAndPlay").addEventListener("click",function(e) {
+            if(isAminate) return;
+            isAminate = true;
+            tl.to(boxMesh.position, 2, {x:170})
+              .to(boxMesh.position, 1, {z:110})
+              .to(boxMesh.position, 1, {x:-170})
+              .to(boxMesh.position, 1, {z:0})
+              .to(boxMesh.position, 1, {x:40, onComplete: function() {
+                    isAminate = false;
+                }})
+        })
+
+        // --------------------------------------------------------------------------------------------------------------
+        //環境光
+        var ambient = new THREE.AmbientLight( 0xffffff, 1);
+        scene.add(ambient);
+        //點光
+        var pointLight = new THREE.PointLight(0xffffff, 2, 1000, 4);
+        pointLight.position.set( -30, 250, 50 );
+        pointLight.castShadow = true;
+        scene.add(pointLight);
+        // --------------------------------------------------------------------------------------------------------------
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        renderer.shadowMap.enabled = true; //開啟陰影
+        // --------------------------------------------------------------------------------------------------------------
+        //控制器
+        var controls = new THREE.OrbitControls(camera);
+        controls.addEventListener('chenge',render);
+        // --------------------------------------------------------------------------------------------------------------
+        window.addEventListener('resize', resizeFn);
+        function render() {
+            renderer.render(scene, camera);
+        }
+        function animatesRender() {
+            requestAnimationFrame(animatesRender);
+            render();
+        }
+        function resizeFn(){
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        // --------------------------------------------------------------------------------------------------------------
+        animatesRender();
+    </script>
+</body>
+</html>
